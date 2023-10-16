@@ -5,7 +5,7 @@ import {useStateContext} from "../context/ContextProvider.jsx";
 import { useState } from "react";
 import "../index.css";
 export default function Login() {
-  const emailRef = createRef()
+  const usernameRef = createRef()
   const passwordRef = createRef()
   const { setUser, setToken } = useStateContext()
   const [message, setMessage] = useState(null)
@@ -14,13 +14,13 @@ export default function Login() {
     ev.preventDefault()
 
     const payload = {
-      email: emailRef.current.value,
+      username: usernameRef.current.value,
       password: passwordRef.current.value,
     }
-    axiosClient.post('/login', payload)
+    axiosClient.post('/api/users/token/', payload)
       .then(({data}) => {
-        setUser(data.user)
-        setToken(data.token);
+        setUser(data.username)
+        setToken(data.access_token);
       })
       .catch((err) => {
         const response = err.response;
@@ -42,7 +42,7 @@ export default function Login() {
             </div>
           }
 
-          <input ref={emailRef} type="email" placeholder="Email"/>
+          <input ref={usernameRef} type="text" placeholder="Username"/>
           <input ref={passwordRef} type="password" placeholder="Password"/>
           <button className="btn btn-block">Login</button>
           <p className="message">Not registered? <Link to="/signup">Create an account</Link></p>
