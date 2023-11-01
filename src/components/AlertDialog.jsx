@@ -32,7 +32,19 @@ export default function AlertDialog(props) {
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            {JSON.stringify(props)}
+            {/* {JSON.stringify(props)} */}
+            {props.type==='error' ? (<>
+            <b> Invalid of missing following fields</b>
+            {Object.keys(props.message.data).map((fieldName) => (
+              <li key={fieldName}>
+                {fieldName}
+              </li>
+            
+            ))}
+            </>) : 
+            (<>
+              {JSON.stringify(props)}
+            </>)}
           </DialogContentText>
         </DialogContent>
         <DialogActions>

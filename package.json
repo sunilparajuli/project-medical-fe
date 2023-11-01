@@ -16,6 +16,7 @@
     "@mui/styles": "^5.14.10",
     "@mui/x-data-grid": "^6.15.0",
     "axios": "^1.2.0",
+    "material-react-table": "^1.15.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.4.4",

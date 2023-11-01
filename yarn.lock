@@ -563,6 +563,37 @@
   resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-1.9.0.tgz#9033238b41c4cbe1e961eccb3f79e2c588328cf6"
   integrity sha512-bV63itrKBC0zdT27qYm6SDZHlkXwFL1xMBuhkn+X7l0+IIhNaH5wuuvZKp6eKhCD4KFhujhfhCT1YxXW6esUIA==
 
+"@tanstack/match-sorter-utils@8.8.4":
+  version "8.8.4"
+  resolved "https://registry.yarnpkg.com/@tanstack/match-sorter-utils/-/match-sorter-utils-8.8.4.tgz#0b2864d8b7bac06a9f84cb903d405852cc40a457"
+  integrity sha512-rKH8LjZiszWEvmi01NR72QWZ8m4xmXre0OOwlRGnjU01Eqz/QnN+cqpty2PJ0efHblq09+KilvyR7lsbzmXVEw==
+  dependencies:
+    remove-accents "0.4.2"
+
+"@tanstack/react-table@8.10.7":
+  version "8.10.7"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-table/-/react-table-8.10.7.tgz#733f4bee8cf5aa19582f944dd0fd3224b21e8c94"
+  integrity sha512-bXhjA7xsTcsW8JPTTYlUg/FuBpn8MNjiEPhkNhIGCUR6iRQM2+WEco4OBpvDeVcR9SE+bmWLzdfiY7bCbCSVuA==
+  dependencies:
+    "@tanstack/table-core" "8.10.7"
+
+"@tanstack/react-virtual@3.0.0-beta.65":
+  version "3.0.0-beta.65"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-virtual/-/react-virtual-3.0.0-beta.65.tgz#a29a10c761afd00c8000dc38adf60088656e0e62"
+  integrity sha512-Q21cUoE0C8Oyzy3RAMV+u4BuB+RwIf2/oQRCWksmIBp1PqLEtvXhAldh7v/wUt7WKEkislKDICZAvbYYs7EAyQ==
+  dependencies:
+    "@tanstack/virtual-core" "3.0.0-beta.65"
+
+"@tanstack/table-core@8.10.7":
+  version "8.10.7"
+  resolved "https://registry.yarnpkg.com/@tanstack/table-core/-/table-core-8.10.7.tgz#577e8a635048875de4c9d6d6a3c21d26ff9f9d08"
+  integrity sha512-KQk5OMg5OH6rmbHZxuNROvdI+hKDIUxANaHlV+dPlNN7ED3qYQ/WkpY2qlXww1SIdeMlkIhpN/2L00rof0fXFw==
+
+"@tanstack/virtual-core@3.0.0-beta.65":
+  version "3.0.0-beta.65"
+  resolved "https://registry.yarnpkg.com/@tanstack/virtual-core/-/virtual-core-3.0.0-beta.65.tgz#fac199321db7787db9463082903dca23c0850c5c"
+  integrity sha512-ObP2pvXBdbivinr7BWDbGqYt4TK8wNzYsOWio+qBkDx5AJFuvqcdJxcCCYnv4dzVTe5ELA1MT4tkt8NB/tnEdA==
+
 "@types/parse-json@^4.0.0":
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/@types/parse-json/-/parse-json-4.0.0.tgz#2f8bb441434d163b35fb8ffdccd7138927ffb8c0"
@@ -950,6 +981,11 @@ has@^1.0.3:
   resolved "https://registry.yarnpkg.com/has/-/has-1.0.4.tgz#2eb2860e000011dae4f1406a86fe80e530fb2ec6"
   integrity sha512-qdSAmqLF6209RFj4VVItywPMbm3vWylknmB3nvNiUIs72xAimcM8nVYxYr7ncvZq5qzk9MKIZR8ijqD/1QuYjQ==
 
+highlight-words@1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/highlight-words/-/highlight-words-1.2.2.tgz#9875b75d11814d7356b24f23feeb7d77761fa867"
+  integrity sha512-Mf4xfPXYm8Ay1wTibCrHpNWeR2nUMynMVFkXCi4mbl+TEgmNOe+I4hV7W3OCZcSvzGL6kupaqpfHOemliMTGxQ==
+
 hoist-non-react-statics@^3.3.1, hoist-non-react-statics@^3.3.2:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz#ece0acaf71d62c2969c2ec59feff42a4b1a85b45"
@@ -1103,6 +1139,16 @@ magic-string@^0.26.7:
   dependencies:
     sourcemap-codec "^1.4.8"
 
+material-react-table@^1.15.1:
+  version "1.15.1"
+  resolved "https://registry.yarnpkg.com/material-react-table/-/material-react-table-1.15.1.tgz#c2bdfdd9c9636acbb2e8ffd5553a82395a2d9f4a"
+  integrity sha512-TXidRV7lGtCV5G/ON9Y38TztRcmpKFodFmyTCjvlKXCl5/9X+KY4waP8U0l16FFslg1f7HGWhfkqV5OfUfEIoA==
+  dependencies:
+    "@tanstack/match-sorter-utils" "8.8.4"
+    "@tanstack/react-table" "8.10.7"
+    "@tanstack/react-virtual" "3.0.0-beta.65"
+    highlight-words "1.2.2"
+
 mime-db@1.52.0:
   version "1.52.0"
   resolved "https://registry.yarnpkg.com/mime-db/-/mime-db-1.52.0.tgz#bbabcdc02859f4987301c856e3387ce5ec43bf70"
@@ -1249,6 +1295,11 @@ regenerator-runtime@^0.14.0:
   version "0.14.0"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.14.0.tgz#5e19d68eb12d486f797e15a3c6a918f7cec5eb45"
   integrity sha512-srw17NI0TUWHuGa5CFGGmhfNIeja30WMBfbslPNhf6JrqQlLN5gcrvig1oqPxiVaXb0oW0XRKtH6Nngs5lKCIA==
+
+remove-accents@0.4.2:
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/remove-accents/-/remove-accents-0.4.2.tgz#0a43d3aaae1e80db919e07ae254b285d9e1c7bb5"
+  integrity sha512-7pXIJqJOq5tFgG1A2Zxti3Ht8jJF337m4sowbuHsW30ZnkQFnDzy9qBNhgzX8ZLW4+UBcXiiR7SwR6pokHsxiA==
 
 reselect@^4.1.8:
   version "4.1.8"

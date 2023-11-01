@@ -5,64 +5,107 @@ import withFormHandling from '../hoc/withFormHandling'; // Import the HOC
 import SendIcon from '@mui/icons-material/Send';
 import UploadIcon from '@mui/icons-material/Upload';
 import axiosClient from '../axios-client';
-import {useStateContext} from "../context/ContextProvider.jsx";
+import { useStateContext } from "../context/ContextProvider.jsx";
 import CircularProgress from '@mui/material/CircularProgress';
-import AlertDialog from '../components/AlertDialog';
-
+import {Navigate} from "react-router-dom";
 // Define the patient form component
 function PatientForm(props) {
-  const { formData, handleFieldChange, handleSubmit } = props;
-
+  const { formData, handleFieldChange, handleSubmit, validationErrors } = props;
   const [value, setValue] = React.useState(0);
+  const [countries, setCountry] = useState([]);
   const [location, setLocation] = useState([]);
   const [district, setDistrict] = useState([]);
   const [municipality, setMunicipality] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [loading, setLoading] = useState(false);
-  const {setNotification, setErrorNotification} = useStateContext();
-  https://raw.githubusercontent.com/abhirimal/nepal-location-data-json/main/nepal_location.json
+  const [errors, setError] = useState({});
+  const { setNotification, setErrorNotification } = useStateContext();
+  //https://raw.githubusercontent.com/abhirimal/nepal-location-data-json/main/nepal_location.json
+
+  const validateForm = (formData) => {
+    // Implement your dynamic validation logic here
+    const errors = {};
+
+    if (!formData.firstName) {
+      errors.firstName = "First Name is required";
+    }
+    if (!formData.lastName) {
+      errors.lastName = "Last Name is required";
+    }
+
+    // Add more validation rules for other form fields as needed
+
+    return errors;
+  };
+
+
+
+
   useEffect(() => {
-    axiosClient.get("/nepal-locations")
+    axiosClient.get("/api/locations/countries")
       .then((res) => {
-        setLocation(res.data);
+        setCountry(res.data);
       });
-  }, [district]);
+  }, [location]);
+
+  useEffect(() => {
+
+  }, [municipality]);
+
+
+  const handleChangeCountry = (e, newValue) => {
+    const selectedCountry = e.target.value;
+    handleFieldChange('country', selectedCountry);
+    console.log("selectedCountry", selectedCountry);
+    axiosClient.get(`/api/locations/countries/${selectedCountry}/provinces/`)
+      .then((data) => {
+        setLocation(data.data);
+      });
+  }
+
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
   const gender = [
-    {"label": "Male", "value": "male"},
-    {"label": "Female", "value": "female"},
-    {"label": "Others", "value": "others"}
+    { "label": "Male", "value": "male" },
+    { "label": "Female", "value": "female" },
+    { "label": "Others", "value": "others" }
   ];
-  const savePatient = () =>{
-		console.log("formdata", formData);
-		axiosClient.post(`/patient-save`, formData)
-        .then(({data}) => {
-          setLoading(false)
-          setNotification(JSON.stringify(data));
+  const savePatient = () => {
+    axiosClient.post(`/api/patients/`, formData)
+      .then(({ data }) => {
+        setLoading(false)
+        setNotification(JSON.stringify(data));
+        return <Navigate to="/patients" />
+      })
+      .catch((error) => {
+        // setErrors(error);
+        
+        setErrorNotification(error.response.data);
+        setLoading(false)
+      })
+  }
 
-        })
-        .catch((error) => {
-          setErrorNotification(JSON.stringify(error));
-          setLoading(false)
-        })
-	}
   const handleLocationChange = (e, newValue) => {
 
     const selectedLocation = e.target.value; //e.target.value;
     if (selectedLocation) {
       handleFieldChange('state', selectedLocation);
-      var districts = location?.provinceList?.filter((e) => e.id === selectedLocation);
-      setDistrict(districts[0]);
+
+      axiosClient.get(`/api/locations/provinces/${selectedLocation}/districts/`)
+        .then((data) => {
+          setDistrict(data.data);
+        })
+
     }
   }
   const handleDistrictChange = e => {
     const selectedDistrict = e.target.value;
     if (selectedDistrict) {
-      var municipality = district?.districtList?.filter((e) => e.id === selectedDistrict);
-      setMunicipality(municipality[0]);
+      axiosClient.get(`/api/locations/districts/${selectedDistrict}/municipalities/`).then((data) => {
+        setMunicipality(data.data);
+      });
       handleFieldChange('district', selectedDistrict);
     }
   }
@@ -160,7 +203,7 @@ function PatientForm(props) {
                     onChange={(e) => handleFieldChange('gender', e.target.value)}
                     size='small'
                   >
-                    {gender.map((item)=> (<MenuItem value={item.value}>{item.label}</MenuItem>))}
+                    {gender.map((item) => (<MenuItem value={item.value}>{item.label}</MenuItem>))}
                   </Select>
                 </Stack>
               </Grid>
@@ -244,12 +287,16 @@ function PatientForm(props) {
                 id="country"
                 value={formData.country || ''}
                 label="country"
-                onChange={(e) => handleFieldChange('country', e.target.value)}
+                onChange={handleChangeCountry}
                 size='small'
               >
-                <MenuItem value={10}>Nepal</MenuItem>
-                <MenuItem value={20}>India</MenuItem>
-                <MenuItem value={30}>Others</MenuItem>
+                {countries?.map(
+                  (item) =>
+                  (<MenuItem value={item.id} key={item.id}>
+                    {item.name}
+                  </MenuItem>)
+                )}
+
               </Select>
             </Stack>
           </Grid>
@@ -264,7 +311,7 @@ function PatientForm(props) {
                 onChange={handleLocationChange}
                 size='small'
               >
-                {location?.provinceList?.map((item) =>
+                {location?.map((item) =>
                 (<MenuItem value={item.id} key={item.id}>{item.name}</MenuItem>
                 ))}
               </Select>
@@ -282,7 +329,7 @@ function PatientForm(props) {
                 size='small'
               >
 
-                {district?.districtList?.map((item) =>
+                {district?.map((item) =>
                 (<MenuItem value={item.id} key={item.id}>{item.name}</MenuItem>
                 ))}
 
@@ -292,7 +339,7 @@ function PatientForm(props) {
 
           <Grid item xs={12} md={3}>
             <Stack spacing={1}>
-              <InputLabel htmlFor="city">City*</InputLabel>
+              <InputLabel htmlFor="city">Municipality*</InputLabel>
               <Select
                 id="city"
                 value={formData.city || ''}
@@ -300,7 +347,7 @@ function PatientForm(props) {
                 onChange={(e) => handleFieldChange('city', e.target.value)}
                 size='small'
               >
-                {municipality?.municipalityList?.map((item) =>
+                {municipality?.map((item) =>
                 (<MenuItem value={item.id} key={item.id}>{item.name}</MenuItem>
                 ))}
 
@@ -377,14 +424,17 @@ function PatientForm(props) {
           </Grid>
         </Grid>
       </Paper>
+      {validationErrors.firstName && (
+        <span className="error-message">{validationErrors.firstName}</span>
+      )}
       {loading ? (<CircularProgress />) :
-      (<Button variant="contained" startIcon={<SendIcon />} sx={{ marginTop: "20px", marginRight: '20px' }} onClick={savePatient}>
-        Save
-      </Button>)}
+        (<Button variant="contained" startIcon={<SendIcon />} sx={{ marginTop: "20px", marginRight: '20px' }} onClick={savePatient}>
+          Save
+        </Button>)}
       <Button variant="contained" startIcon={<SendIcon />} sx={{ marginTop: "20px" }}>Start OPD Visit</Button>
     </form>
-
   );
+  
 }
 
 // Wrap PatientForm component with the HOC and provide initial state

@@ -7,7 +7,7 @@ import "../index.css";
 export default function Login() {
   const usernameRef = createRef()
   const passwordRef = createRef()
-  const { setUser, setToken } = useStateContext()
+  const { setUser, setToken, setRefreshToken } = useStateContext()
   const [message, setMessage] = useState(null)
 
   const onSubmit = ev => {
@@ -21,6 +21,7 @@ export default function Login() {
       .then(({data}) => {
         setUser(data.username)
         setToken(data.access_token);
+        setRefreshToken(data.refresh_token);
       })
       .catch((err) => {
         const response = err.response;

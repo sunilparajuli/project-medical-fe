@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axiosClient from "../axios-client.js";
 import { Link } from "react-router-dom";
 import { useStateContext } from "../context/ContextProvider.jsx";
-
+import { MaterialReactTable } from 'material-react-table';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -14,11 +14,12 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import CircularProgress from '@mui/material/CircularProgress';
-
 import Button from '@mui/material/Button';
+import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
 import InsuranceTable from "../components/insuranceData.jsx";
 import AvatarPhoto from "../components/AvatarPhoto.jsx";
+import SendIcon from '@mui/icons-material/Send';
 const style = {
   position: 'absolute',
   top: '50%',
@@ -31,16 +32,15 @@ const style = {
   p: 4,
 };
 
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-  createData('Cupcake', 305, 3.7, 67, 4.3),
-  createData('Gingerbread', 356, 16.0, 49, 3.9),
+const data = [
+  {
+    name: "John",
+    age: 30
+  },
+  {
+    name: "Sara",
+    age: 25
+  }
 ];
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -50,75 +50,173 @@ export default function Users() {
   const [patients, setPatients] = useState(null);
   const [patientCov, setPatientCov] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [patientlists, setPatientlists] = useState([]);
   const [open, setOpen] = useState(false);
-
-
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  useEffect(() => {
-    getUsers();
-  }, [])
 
-  const onDeleteClick = user => {
-    if (!window.confirm("Are you sure you want to delete this user?")) {
-      return
+
+  // useEffect(() => {
+  //     setLoading(true)
+  //     axiosClient.get('/api/patients/')
+  //       .then(({ data }) => {
+  //         setLoading(false)
+  //         setPatientlists(data.data)
+  //       })
+  //       .catch(() => {
+  //         setLoading(false)
+  //       })
+
+  // }, [])
+
+  // useEffect(() => {
+  // }, [patientlists]);
+
+  const [data, setData] = useState([]);
+
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRefetching, setIsRefetching] = useState(false);
+  const [rowCount, setRowCount] = useState(0);
+
+  //table state
+  const [columnFilters, setColumnFilters] = useState([]);
+  const [globalFilter, setGlobalFilter] = useState('');
+  const [sorting, setSorting] = useState([]);
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
+  const fetchData = async () => {
+    if (!data.length) {
+      setIsLoading(true);
+    } else {
+      setIsRefetching(true);
     }
-    axiosClient.delete(`/users/${user.id}`)
-      .then(() => {
-        setNotification('User was successfully deleted')
-        getUsers()
-      })
-  }
 
-  const getUsers = () => {
-    setLoading(true)
-    axiosClient.get('/users')
-      .then(({ data }) => {
-        setLoading(false)
-        setUsers(data.data)
-      })
-      .catch(() => {
-        setLoading(false)
-      })
-  }
-
-
-  const getPatientData = () => {
-    setLoading(true);
-    axiosClient.get(`/get-patient-details/${chfid}`)
-      .then(({ data }) => {
-        setLoading(false);
-        setPatients(data);
-        handleOpen(); // Open the modal when data is fetched.
-      })
-      .catch(() => {
-        setLoading(false);
+    try {
+      const response = await axiosClient.get('/api/patients/', {
+        params: {
+          start: `${pagination.pageIndex * pagination.pageSize}`,
+          size: `${pagination.pageSize}`,
+          filters: JSON.stringify(columnFilters ?? []),
+          globalFilter: globalFilter ?? '',
+          sorting: JSON.stringify(sorting ?? []),
+        },
       });
+
+      const data = response.data.data;
+      setData(data);
+      setRowCount(data.count);
+    } catch (error) {
+      setIsError(true);
+      console.error(error);
+      return;
+    }
+
+    setIsError(false);
+    setIsLoading(false);
+    setIsRefetching(false);
   };
 
-  const getPatientCoverageData = () => {
-    setLoading(true);
-    var todayDate = new Date().toISOString().slice(0, 10);
-    axiosClient.post(`get-patient-coverage/${chfid}/${todayDate}`)
-      .then(({ data }) => {
-        setLoading(false);
-        setPatientCov(data);
-        handleOpen(); // Open the modal when data is fetched.
-      })
-      .catch(() => {
-        setLoading(false);
-      });
-  };
+  // Use the fetchData function in your useEffect
+  useEffect(() => {
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [columnFilters, globalFilter, pagination.pageIndex, pagination.pageSize, sorting]);
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
 
+  const getPatientData = async () => {
+    try {
+      const response = await axiosClient.get(`/api/patients/fhir/v4/patient/${chfid}/`);
+      console.log('Patient data:', response.data);
+      // Further processing of the response data
+      setPatients(response.data);
+    } catch (error) {
+      console.error('Error fetching patient data:', error);
+      // Handle the error state
+    }
+  };
+
+  const getPatientCoverageData = async () => {
+    try {
+      const response = await axiosClient.get(`/api/patients/fhir/v4/coverage/${chfid}/2021-01-01/`);
+      console.log('Patient data:', response.data);
+      // Further processing of the response data
+      setPatientCov(response.data);
+    } catch (error) {
+      console.error('Error fetching patient data:', error);
+      // Handle the error state
+    }
+  };
   const keyPress = () => {
     setPatients(null);
     setPatientCov(null);
     getPatientData();
     getPatientCoverageData();
+    setOpen(true);
   }
+  
+
+
+  const columns = useMemo(
+    () => [
+      {
+        //simple accessorFn that works the same way as an `accessorKey`
+        accessorFn: (row) => row.identifier,
+        id: 'identifier',
+        header: 'identifier',
+        Cell: ({ cell }) => (
+          <Box
+            component="span"
+            sx={(theme) => ({
+              backgroundColor
+                : theme.palette.primary.light,
+              borderRadius: '0.25rem',
+              color: '#fff',
+              maxWidth: '9ch',
+              p: '0.25rem',
+            })}
+          >
+            {cell.getValue()?.toLocaleString?.('en-US', {
+              style: 'currency',
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
+            })}
+          </Box>
+        ),
+      },
+      {
+        //accessorFn function that combines multiple data together
+        accessorFn: (row) => `${row.first_name} ${row?.middle_name} ${row.last_name}`,
+        id: 'name',
+        header: 'Name',
+      },
+      {
+        //accessorFn used to access nested data, though you could just use dot notation in an accessorKey
+        accessorFn: (row) => row.phone,
+        id: 'phone',
+        header: 'Phone',
+      },
+      {
+        //accessorFn used to access nested data, though you could just use dot notation in an accessorKey
+        accessorFn: (row) => row.email,
+        id: 'email',
+        header: 'email',
+      },
+      {
+        //accessorFn used to access nested data, though you could just use dot notation in an accessorKey
+        accessorFn: (row) => row.created_at,
+        id: 'created_at',
+        header: 'created_at',
+      },
+    ],
+    [],
+  );
 
   return (
     <div>
@@ -170,44 +268,80 @@ export default function Users() {
             </Typography>
 
             {patientCov != null ? (<InsuranceTable insuranceData={patientCov} patientPhoto={patientCov?.patient} />) : <CircularProgress />}
+            <Button variant="contained" startIcon={<SendIcon />} sx={{ marginTop: "20px" }}>Start OPD Visit</Button>
           </Box>
         </Modal>
       </div>
+
       <TableContainer component={Paper}>
         <TextField id="outlined-basic" label="standard" variant="standard" value={chfid} onChange={(e) => setChfid(e.target.value)} />
         <Button onClick={keyPress}> Search </Button>
-        <Link to="/patient-add">
-          <Button > Add New </Button>
-        </Link>
-        <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Dessert (100g serving)</TableCell>
-              <TableCell align="right">Calories</TableCell>
-              <TableCell align="right">Fat&nbsp;(g)</TableCell>
-              <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-              <TableCell align="right">Protein&nbsp;(g)</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row) => (
-              <TableRow
-                key={row.name}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-              >
-                <TableCell component="th" scope="row">
-                  {row.name}
-                </TableCell>
-                <TableCell align="right">{row.calories}</TableCell>
-                <TableCell align="right">{row.fat}</TableCell>
-                <TableCell align="right">{row.carbs}</TableCell>
-                <TableCell align="right">{row.protein}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
 
+
+      </TableContainer>
+      <MaterialReactTable
+        columns={columns}
+        data={data}
+        enableRowSelection
+        getRowId={(row) => row.id}
+        initialState={{ showColumnFilters: true }}
+        manualFiltering
+        manualPagination
+        manualSorting
+        renderTopToolbarCustomActions={({ table }) => (
+          <Box
+            sx={{ display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
+          >
+            <Link to="/patient-add">
+
+              <Button
+                color="primary"
+                //export all data that is currently in the table (ignore pagination, sorting, filtering, etc.)
+                // onClick={handleExportData}
+                // startIcon={<FileDownloadIcon />}
+                variant="contained"
+              >
+                Add New
+              </Button>
+            </Link>
+          </Box>)}
+
+        muiToolbarAlertBannerProps={
+          isError
+            ? {
+              color: 'error',
+              children: 'Error loading data',
+            }
+            : undefined
+        }
+        onColumnFiltersChange={setColumnFilters}
+        onGlobalFilterChange={setGlobalFilter}
+        onPaginationChange={setPagination}
+        onSortingChange={setSorting}
+        rowCount={rowCount}
+        enableRowActions
+        renderRowActionMenuItems={({ row }) => [
+          <MenuItem key="edit" onClick={() => console.info('Edit')}>
+            Edit
+          </MenuItem>,
+          <MenuItem key="delete" onClick={() => console.info('Delete')}>
+            Delete
+          </MenuItem>,
+          <MenuItem key="edit" onClick={() => console.info('Edit')}>
+            CheckEligibility
+          </MenuItem>,
+
+        ]}
+        state={{
+          columnFilters,
+          globalFilter,
+          isLoading,
+          pagination,
+          showAlertBanner: isError,
+          showProgressBars: isRefetching,
+          sorting,
+        }}
+      />
     </div>
   )
 }

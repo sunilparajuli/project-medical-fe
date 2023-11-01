@@ -6,6 +6,7 @@ const StateContext = createContext({
   notification: null,
   setUser: () => {},
   setToken: () => {},
+  setRefreshToken : () => {},
   setNotification: () => {},
   setErrorNotification: () => {},
 })
@@ -13,6 +14,7 @@ const StateContext = createContext({
 export const ContextProvider = ({children}) => {
   const [user, setUser] = useState({});
   const [token, _setToken] = useState(localStorage.getItem('ACCESS_TOKEN'));
+  const [refreshToken, _setRefreshToken] = useState(localStorage.getItem('REFRESH_TOKEN'));
   const [notification, _setNotification] = useState('');
   const [errornotification, _setErrorNotification] = useState('');
 
@@ -25,6 +27,14 @@ export const ContextProvider = ({children}) => {
     }
   }
 
+  const setRefreshToken = (token) => {
+    _setRefreshToken(token)
+    if (token) {
+      localStorage.setItem('REFRESH_TOKEN', token);
+    } else {
+      localStorage.removeItem('REFRESH_TOKEN');
+    }
+  }
   const setNotification = message => {
     _setNotification(message);
 
@@ -47,6 +57,7 @@ export const ContextProvider = ({children}) => {
       setUser,
       token,
       setToken,
+      setRefreshToken,
       notification,
       setNotification,
       errornotification,
