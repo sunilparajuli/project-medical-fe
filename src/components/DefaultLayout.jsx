@@ -110,7 +110,11 @@ export default function DefaultLayout() {
   const onLogout = (ev) => {
     ev.preventDefault();
 
-    axiosClient.post('/logout').then(() => {
+    const payload = {
+      refresh_token: localStorage.getItem('REFRESH_TOKEN')
+    }
+
+    axiosClient.post('/api/users/logout', payload).then(() => {
       setUser({});
       setToken(null);
     });
