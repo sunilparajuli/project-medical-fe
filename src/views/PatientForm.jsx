@@ -4,12 +4,19 @@ import { TextField, Button, Tab, Tabs, Typography, Box, Grid, Stack, InputLabel,
 import withFormHandling from '../hoc/withFormHandling'; // Import the HOC
 import SendIcon from '@mui/icons-material/Send';
 import UploadIcon from '@mui/icons-material/Upload';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import axiosClient from '../axios-client';
 import { useStateContext } from "../context/ContextProvider.jsx";
 import CircularProgress from '@mui/material/CircularProgress';
 import {Navigate} from "react-router-dom";
+import Container from '@mui/material/Container';
+import { useNavigate, useParams } from 'react-router-dom';
+
+
 // Define the patient form component
 function PatientForm(props) {
+  const navigate = useNavigate();
+  let { id } = useParams();
   const { formData, handleFieldChange, handleSubmit, validationErrors } = props;
   const [value, setValue] = React.useState(0);
   const [countries, setCountry] = useState([]);
@@ -21,6 +28,31 @@ function PatientForm(props) {
   const [errors, setError] = useState({});
   const { setNotification, setErrorNotification } = useStateContext();
   //https://raw.githubusercontent.com/abhirimal/nepal-location-data-json/main/nepal_location.json
+
+
+  const fetchPatientData = (patientId) => {
+    axiosClient.get(`/api/patients/detail/${patientId}/`)
+      .then((response) => {
+        console.log("response", response);
+        // Populate the form fields with the fetched data
+        // Update formData or perform handleFieldChange for each field
+        formData.firstName = response.data.first_name;
+        formData.middleName = response.data.middle_name;
+        formData.lastName = response.data.last_name;
+        formData.email = response.data.email;
+        formData.gender = response.data.gender;
+        formData.dateOfBirth = response.data.birthdate;
+        formData.phoneNumber = response.data.phone;
+        formData.patientIdentifier = response.data.identifier;
+
+
+        // Populate other fields accordingly
+      })
+      .catch((error) => {
+        // Handle error when fetching patient data
+        console.error('Error fetching patient data:', error);
+      });
+  };
 
   const validateForm = (formData) => {
     // Implement your dynamic validation logic here
@@ -40,6 +72,15 @@ function PatientForm(props) {
 
 
 
+
+  useEffect(() => {
+    console.log("props", id)
+    // Check if in edit mode by checking the presence of a patient ID in the props
+    if (id) {
+      // Fetch patient data for editing
+      fetchPatientData(id);
+    }
+  }, []);
 
   useEffect(() => {
     axiosClient.get("/api/locations/countries")
@@ -120,6 +161,10 @@ function PatientForm(props) {
   }
 
   return (
+    <>
+      
+      <Container>
+      <ArrowBackIosNewIcon onClick={() => navigate(-1)}/>
     <form onSubmit={handleSubmit}>
       <Paper sx={{ padding: '20px' }} elevation={1}>
         <Typography sx={{ marginBottom: '10px', fontWeight: 'bold' }}>New Patient</Typography>
@@ -433,6 +478,8 @@ function PatientForm(props) {
         </Button>)}
       <Button variant="contained" startIcon={<SendIcon />} sx={{ marginTop: "20px" }}>Start OPD Visit</Button>
     </form>
+    </Container>
+    </>
   );
   
 }

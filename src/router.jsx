@@ -12,6 +12,7 @@ import PatientForm from "./views/PatientForm.jsx";
 import Billing from "./views/Billing.jsx";
 import Location from "./views/Location.jsx";
 import Claim from "./views/Claim.jsx";
+import AttachmentUpload from "./views/AttachmentUpload.jsx";
 const router = createBrowserRouter([
   {
     path: '/',
@@ -46,6 +47,10 @@ const router = createBrowserRouter([
         element: <PatientForm />
       },
       {
+        path: '/patient-update/:id',
+        element: <PatientForm key="patientUpdate" />
+      },
+      {
         path: '/create-billing',
         element: <Billing />
       },
@@ -57,6 +62,10 @@ const router = createBrowserRouter([
         path: '/claims',
         element: <Claim />
       },
+      {
+        path : '/attachment-upload',
+        element : <AttachmentUpload />
+      }
     ]
   },
   {

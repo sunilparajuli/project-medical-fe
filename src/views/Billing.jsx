@@ -6,14 +6,9 @@ import Container from '@mui/material/Container';
 function Billing() {
   return (
     <React.Fragment>
-   
+      <InvoiceForm />
+    </React.Fragment>
 
-    
-        <InvoiceForm />
-    
-    
-  </React.Fragment>
-   
   );
 }
 

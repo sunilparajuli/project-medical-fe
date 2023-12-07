@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import axiosClient from "../axios-client.js";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useStateContext } from "../context/ContextProvider.jsx";
 import { MaterialReactTable } from 'material-react-table';
 import Table from '@mui/material/Table';
@@ -54,6 +54,7 @@ export default function Users() {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const navigate = useNavigate();
 
 
   // useEffect(() => {
@@ -321,7 +322,7 @@ export default function Users() {
         rowCount={rowCount}
         enableRowActions
         renderRowActionMenuItems={({ row }) => [
-          <MenuItem key="edit" onClick={() => console.info('Edit')}>
+          <MenuItem key="edit" onClick={() => navigate(`/patient-update/${row.id}`)}>
             Edit
           </MenuItem>,
           <MenuItem key="delete" onClick={() => console.info('Delete')}>

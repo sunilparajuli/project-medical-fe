@@ -25,6 +25,7 @@ const today = date.toLocaleDateString('en-GB', {
     year: 'numeric',
 });
 
+
 const submitData = (e) => {
     e.preventDefault();
     axiosClient
@@ -65,10 +66,15 @@ const InvoiceForm = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [discount, setDiscount] = useState('');
     const [tax, setTax] = useState('');
+    const [subtot, setSubtotal] = useState(0);
     const [invoiceNumber, setInvoiceNumber] = useState(1);
     const [cashierName, setCashierName] = useState('');
     const [customerName, setCustomerName] = useState('');
     const {setNotification, setErrorNotification} = useStateContext()
+    useEffect(() => {
+
+    }, [subtot]);
+  
 
     const [items, setItems] = useState([
         {
@@ -162,8 +168,10 @@ const InvoiceForm = () => {
 
     const subtotal = items.reduce((prev, curr) => {
         console.log("prev", "curr", prev, curr)
-        if (curr.name.trim().length > 0)
+        if (curr.name.trim().length > 0){
+            setSubtotal(prev + Number(curr.price * Math.floor(curr.qty)));
             return prev + Number(curr.price * Math.floor(curr.qty));
+        }
         else return prev;
     }, 0);
     let _total = 0.0;
@@ -321,7 +329,7 @@ const InvoiceForm = () => {
                             <Grid item xs={12}>
                                 <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1} sx={{ margin: "10px " }}>
                                     <p>Subtotal:</p>
-                                    <p>Rs.{subtotal.toFixed(2)}</p>
+                                    <p>Rs.{subtot.toFixed(2)}</p>
                                 </Stack>
 
                                 <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1} sx={{ margin: "10px " }}>

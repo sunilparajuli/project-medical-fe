@@ -35,10 +35,11 @@ export default function AlertDialog(props) {
             {/* {JSON.stringify(props)} */}
             {props.type==='error' ? (<>
             <b> Invalid of missing following fields</b>
-            {Object.keys(props.message.data).map((fieldName) => (
+            {/* {props.message &&Object.keys(props.message.data).map((fieldName) => (
               <li key={fieldName}>
                 {fieldName}
-              </li>
+              </li> */}
+              <>{props.message.data}</>
             
             ))}
             </>) : 

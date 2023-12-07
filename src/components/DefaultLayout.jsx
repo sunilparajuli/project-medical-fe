@@ -153,6 +153,11 @@ export default function DefaultLayout() {
         "menu": "Claims",
         "redirect": "/claims",
         "icon": <AutoStoriesIcon color="primary" />
+      },
+      {
+        "menu" : "Attachments",
+        "redirect" : "/attachment-upload",
+        "icon" : <AutoStoriesIcon color="primary" />
       }
     ];
   
