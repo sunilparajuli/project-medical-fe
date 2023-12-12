@@ -1,6 +1,6 @@
 import { Link, Navigate } from "react-router-dom";
 //import { useStateContext } from "../context/ContextProvider.jsx";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "../index.css";
 
 // MUI Compoments
@@ -14,7 +14,8 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
-
+import CircularProgress from '@mui/material/CircularProgress';
+import MuiAlert from '@mui/material/Alert';
 // Redux action
 import { logIn } from "../redux/actions/auth.js";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,10 +25,12 @@ const defaultTheme = createTheme();
 export default function Login() {
   const dispatch = useDispatch();
   const auth = useSelector((state) => state.auth);
+  console.log('auth', auth)
   //const { user, token, setUser, setToken, setRefreshToken } = useStateContext()
   const [message, setMessage] = useState(null)
-  
-
+  const Alert = React.forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+  });
   const handleSubmit = (event) => {
     event.preventDefault()
     const data = new FormData(event.currentTarget);
@@ -121,8 +124,9 @@ export default function Login() {
               sx={{ mt: 3, mb: 2 }}
               disabled={auth.loading}
             >
-              Login
+              {!auth.loading ? ('Login') :<CircularProgress />}
             </Button>
+            
             <Grid container>
               <Grid item>
                 <Link to="/signup" variant="body2">
